@@ -12,9 +12,8 @@ import corner from "../../icons/corner.svg";
 
 import { ENTER_DELAY, LEAVE_DELAY, STORAGE_LAYOUT } from "../../utils/constant";
 import { downloadFile } from "../../utils/helper";
-
 import { observer, inject } from "mobx-react";
-
+@inject("resume")
 @inject("navbar")
 @inject("dialog")
 @observer
@@ -58,8 +57,7 @@ class Export extends Component {
 
   handleFileRead = e => {
     const content = this.fileReader.result;
-    window.localStorage.setItem(STORAGE_LAYOUT, content);
-    window.location.href = "/";
+    this.props.resume.switchLayout(JSON.parse(content))
   };
 
   openHelpDialog = event => {
