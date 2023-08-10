@@ -11,7 +11,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 import corner from "../../icons/corner.svg";
 
 import { ENTER_DELAY, LEAVE_DELAY, STORAGE_LAYOUT } from "../../utils/constant";
-import { downloadFile } from "../../utils/helper";
+import { downloadFile, exportPDF2 } from "../../utils/helper";
 import { observer, inject } from "mobx-react";
 @inject("resume")
 @inject("navbar")
@@ -31,11 +31,15 @@ class Export extends Component {
     event.stopPropagation();
     this.setState({ exportAnchorEl: null });
   };
-
-  handleExport = event => {
+  handlePrint = event => {
     event.stopPropagation();
     this.props.navbar.setExported(true);
     this.setState({ exportAnchorEl: null });
+  };
+  handleExport = () => {
+    const el = document.getElementsByClassName('react-grid-layout ')[0]
+    // generatePDF('resumeg', el)
+    exportPDF2('resume1', el)
   };
 
   saveToLocal = event => {
@@ -103,6 +107,9 @@ class Export extends Component {
           }}
         >
           <MenuItem className={classes.menuItem} style={{ display: "none" }} />
+          <MenuItem className={classes.menuItem} onClick={this.handlePrint}>
+            打印
+          </MenuItem>
           <MenuItem className={classes.menuItem} onClick={this.handleExport}>
             导出PDF
           </MenuItem>
@@ -129,7 +136,6 @@ class Export extends Component {
     );
   }
 }
-
 const styles = theme => ({
   btn: {
     padding: "0px 10px",

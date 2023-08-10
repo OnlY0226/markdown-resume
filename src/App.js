@@ -67,7 +67,7 @@ class App extends Component {
         <section className={classes.navbar} style={display}>
           <Navbar />
         </section>
-        <main className={classes.resume} style={resumeStyle}>
+        <main id="main" className={classes.resume} style={resumeStyle}>
           {this.props.navbar.isMarkdownMode ? <Resume /> : <NormalResume />}
         </main>
         <Dialog />

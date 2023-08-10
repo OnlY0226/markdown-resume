@@ -1,6 +1,10 @@
 import MarkdownIt from "markdown-it";
 import MarkdownItIns from "markdown-it-ins";
 import MarkdownItMark from "markdown-it-mark";
+
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+ 
 import {
   ADD_DEFAULT_WIDTH,
   ADD_DEFAULT_HEIGHT,
@@ -237,4 +241,66 @@ export const downloadFile = (fileName, content) => {
   aTag.href = URL.createObjectURL(blob);
   aTag.click();
   URL.revokeObjectURL(blob);
+}
+// 导出页面为PDF格式
+/***
+ * elementName: 需要输出PDF的页面id
+ * htmlTitle: 页面标题
+ * currentTime：创建时间
+ */
+export const exportPDF2 = (fileName, element) => {
+    html2canvas(element, {
+        logging: false,
+        scale: 4
+    }).then(function(canvas) {
+        var pdf = new jsPDF("p", "mm", "a4") // A4纸，纵向
+        var ctx = canvas.getContext("2d")
+        var a4w = 190;
+        var a4h = 257 // A4大小，210mm x 297mm，四边各保留20mm的边距
+        var imgHeight = Math.floor(a4h * canvas.width / a4w) // 按A4显示比例换算一页图像的像素高度
+        var renderedHeight = 0
+
+        while (renderedHeight < canvas.height) {
+            var page = document.createElement("canvas")
+            page.width = canvas.width
+            page.height = Math.min(imgHeight, canvas.height - renderedHeight) // 可能内容不足一页
+
+            // 用getImageData剪裁指定区域，并画到前面创建的canvas对象中
+            page.getContext("2d").putImageData(ctx.getImageData(0, renderedHeight, canvas.width, Math.min(imgHeight, canvas.height - renderedHeight)), 0, 0)
+            pdf.addImage(page.toDataURL("image/jpeg", 1.0), "JPEG", 10, 10, a4w, Math.min(a4h, a4w * page.height / page.width)) // 添加图像到页面，保留10mm边距
+
+            renderedHeight += imgHeight
+            if (renderedHeight < canvas.height) { pdf.addPage() } // 如果后面还有内容，添加一个空页
+            // delete page;
+        }
+        pdf.save(fileName + '.pdf')
+    })
+}
+// 创建PDF文档
+export const generatePDF = (fileName, element) => {
+  //获取元素
+  //在html 元素中将字体写入样式
+  element.style.fontFamily = "siyuan";
+  //创建pdf文件
+  const doc = new jsPDF('p', 'pt', 'a4');
+  // 设置边距
+  const margin = {
+      top: 60, right: 60, bottom: 60, left: 60
+  };
+  // 计算实际页面宽度和高度
+  const pdfWidth = doc.getPageWidth();
+  const pageWidth = pdfWidth - margin.left - margin.right;
+  const pageHeight = doc.getPageHeight() - margin.top - margin.bottom;
+  doc.html(element, {
+          callback(pdf) {
+              // 添加页脚
+              console.log(pdf, 'susssssssss')
+              // const file = pdf.output(type);
+          },
+          autoPaging: 'text',//设置跨页自动换行
+          windowWidth: pdfWidth,
+          width: pageWidth,
+          height: pageHeight,
+          margin: [margin.top, margin.right, margin.bottom, margin.left]
+   });
 }
